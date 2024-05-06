@@ -1,0 +1,1077 @@
+\documentclass{article}
+\usepackage{graphicx,hyperref} % Required for inserting images
+\usepackage{float, enumitem, array}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmic,algorithm2e}
+
+
+\title{Capstone report}
+\author{Ghadi Ayoub \\ \\  Ali Abbani \\ \\ Submitted to Dr.Harmanani}
+\date{May 2024}
+
+\begin{document}
+
+\maketitle
+\clearpage % Start the next content on a new page
+\vspace*{\fill}
+\begin{center}
+    \textit{This page is purposely left blank}
+\end{center}
+\vspace*{\fill}
+
+\clearpage
+\section{Table of content}
+\textbf{2 Project motivation} ................................................................................................................. \\ \\ 
+\textbf{3 Problem Challenges} ............................................................................................................... \\ \\
+\textbf{4 Report Body} ............................................................................................................................ \\ \\ 
+\textbf{4.1 Problem statement} .............................................................................................................. \\ \\
+\textbf{4.2 Limitations of Existing Work} ............................................................................................. \\ \\
+\textbf{4.3 Project Functional Description and Design Requirements} .......................................... \\ \\ 
+\textbf{4.4 Implementation Details} ...................................................................................................... \\ \\
+\textbf{4.5 Market Viability} ................................................................................................................... \\ \\
+\textbf{4.6 Future Work} .......................................................................................................................... \\ \\
+\textbf{4.7 Results and Impact} .............................................................................................................. \\ \\
+\textbf{4.8 Team Work} ............................................................................................................................ \\ \\ 
+\textbf{4.9 Conclusion} ............................................................................................................................. \\ \\ 
+\textbf{4.10 References} ............................................................................................................................ \\ \\ 
+
+\clearpage
+\setcounter{section}{1} 
+
+\textit{The full references can be found in the end of the report.}
+\textit{The source code of the project can be found on github in the following repository: \href{https://github.com/Ghadi03/CapstoneRepo}{https://github.com/Ghadi03/CapstoneRepo}}
+
+\section{Project motivation}
+Based on a 2021 study by The Muse, 70 percent of university students face career confusion. For those entering the workforce, LinkedIn is a go-to platform. However, navigating dynamic fields like computer science in 2024 can be overwhelming, especially for those with minimal experience. This project aims to gather and analyze extensive data from industry veterans and companies to identify trends and essential skills. The goal is to offer concise insights, aiding individuals in the early stages of their careers.
+
+\section{Problem Challenges}
+\subsection{Problems with data collection}
+Our project comports a wide set of hurdles and challenges that we have had to overcome. Starting from the step which consists of scraping the data, we have encountered problems with the LinkedIn API (application programming interface). We were unable to leverage it in order to collect the data we need. Thankfully however, we found a dataset in kaggle which uses the exact same API to store all sorts of jobs that were listed in the year 2023. We also ran into some problems in the semantics of the project. At first, we wanted to create a comprehensive overview of jobs trends across time, but due to insufficient data, we had to shift our focus on one year. And so, our project now consists of finding \textbf{the most recent job trends}, rather than illustrate an elastic trend that spans across an interval. 
+\subsection{Problems with the pre-processing of the data}
+As we will see later in more details, our data was very much not monolithic in nature, and was compromised of a diverse set of textual, categorical, and numerical data. In addition to the various techniques we have had to use to handle such variety, the great noise in the data made us also put even more effort. 
+\subsection{Problems with the models}
+Initially, not all of our models showed good accuracy, which made us backtrack quite often in order to perform parameter tuning, and combine it with various prep-processing techniques in order to reach the optimum solution. 
+\subsection{Problems with the overall architecture}
+After exporting our models, we had to teach ourselves to incorporate it with a simple web interface. 
+\section{Report body}
+\subsection{Problem statement}
+In this project, the primary objective is to develop a comprehensive understanding of job trends and skills within the LinkedIn platform. The central questions guiding this investigation include:
+\begin{itemize}
+    \item What are the current trends in job postings on LinkedIn across different industries and sectors?
+    \item Can machine learning models accurately predict emerging skills based on historical job data?
+\end{itemize}
+
+These questions collectively aim to uncover insights into the dynamic landscape of employment, providing valuable information for job seekers, career planners, and industry analysts.
+
+\subsection{Limitations of Existing Work}
+The existing approaches to job trend analysis often rely on manual collection of data, limiting the scalability and real-time relevance of the insights. The proposed project contributes by integrating machine learning models to automate data extraction, enabling the analysis of a larger volume of job postings. This method not only enhances the efficiency of trend identification but also allows for the prediction of emerging skills based on historical patterns. By leveraging data-driven insights, this project adds depth and precision to the existing body of knowledge in the field of employment trend analysis on platforms like LinkedIn.
+
+\subsection{Implementation Details}
+\subsubsection{High level description}
+The core project can be broken down into two main components: 
+\begin{enumerate}
+    \item The development of accurate models to predict the trend of a particular job based on a precise input. 
+    \item The development of an interactive interface which serves as a user friendly method for a person to prompt the job that they want to check, as well as additional parameters.
+\end{enumerate}
+The first part can subsequently be broken down into additional sub parts. Indeed, in order to create a fully fledged model, we need to follow the following steps:
+\begin{enumerate}
+    \item Data gathering. This step was straightforward and simply involved importing the file from the following link: \\ \\
+    \href{https://www.kaggle.com/datasets/arshkon/linkedin-job-postings}{https://www.kaggle.com/datasets/arshkon/linkedin-job-postings}. \\ \\ This excel file uses the same API that we initially wanted to use. Initially, it contained an impressive set of 28 features: 
+    \begin{itemize}
+    \item job\_id
+    \item company\_id
+    \item title
+    \item description
+    \item max\_salary
+    \item med\_salary
+    \item min\_salary
+    \item pay\_period
+    \item formatted\_work\_type
+    \item location
+    \item applies
+    \item original\_listed\_time
+    \item remote\_allowed
+    \item views
+    \item job\_posting\_url
+    \item application\_url
+    \item application\_type
+    \item expiry
+    \item closed\_time
+    \item formatted\_experience\_level
+    \item skills\_desc
+    \item listed\_time
+    \item posting\_domain
+    \item sponsored
+    \item work\_type
+    \item currency
+    \item compensation\_type
+    \item scraped
+\end{itemize}
+\item Data processing, which consists of three sub steps: \\
+\textbf{1) Feature extraction}\textbf{, 2) data cleaning}, \textbf{3) and data visualization.} We shall go into much more depth as we proceed with the next stages of the explanation. 
+\item Data modelling: In this step, we first apply the algorithms we want to test, then we measure their performance accordingly. It should be obvious that we did not get the results we wanted from the first try, and thus had to perform \textbf{parameter tuning.}
+\item Model testing: In this step, we extract 20 \% of the dataset and make it go through the same processing steps, then test it to see if the model can accurately proceed with correct outputs. 
+\end{enumerate}
+The next part of the project consists of building a small web application which helps the user interact in a simple manner with our model through the medium of a user-friendly interface. The process includes: 
+\begin{enumerate}
+    \item Exporting the model(s) we have developed from google colab by loading them after training them.  
+    \item Install the libraries needed to use the models
+    \item Create a python model which imports the paths needed
+    \item Create a view for model inference, this page contains the prompt form itself, as well as a  simple presentation of our model.
+    \item Configure the path for the view and construct a proper routing graph. 
+\end{enumerate}
+\subsubsection{Block level description}
+Since the scope of this project revolves around the model(s), we will not draw a full block diagram. Here is a lower level description of the project's architecture: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Blank diagram.png}
+    \caption{Chart illustrating the application's lifestyle }
+    \label{fig:enter-label}
+\end{figure}
+In this diagram, we illustrate the following: 
+We start by downloading the data set which contains the features we have mentioned before. The data is contains numeric, textual, and categorical values, making it perfect to hone our pre-processing skills. The data, which has been reduced to 5000 lines, has been shuffled in order to reduce bias.  \\ \\
+After selecting the most suitable features, we obtain the following schema: 
+\begin{enumerate}
+    \item title	
+    \item description	
+    \item max\_salary	
+    \item med\_salary	
+    \item min\_salary	
+    \item applies	
+    \item remote\_allowed	
+    \item views	
+    \item skills\_desc	
+    \item sponsored	
+    \item pay\_period\_HOURLY	
+    \item pay\_period\_MONTHLY	
+   \item  pay\_period\_YEARLY	
+    \item formatted\_work\_type
+    \item currency	
+    \item compensation\_type
+    \item skills\_desc\_present	
+    formatted\_experience\_level
+\end{enumerate}
+The following steps include  pre-processing all of our data, which is very noisy in nature, and contains a lot empty cells. We will later get into more details with the techniques we have used. \\ \\
+We have partitioned the features into four sets: 
+\begin{enumerate}
+    \item The singleton set {data}
+    \item The singleton set {description}
+    \item The set of salaries: {max,med, and min salary}
+    \item The set of features that remain. 
+\end{enumerate}
+While there exists numerous other ways to partition our data, this method will allows us to put more emphasis on the columns which contain a lot of semantics we can extract. \\ \\ 
+Following this step, we feed the data of each set to its optimal algorithm. Various methods, both for the pre-processing and the models themselves were tried, and more details will be explained later on. \\ \\
+Following a process which involved a lot of trial and error, we have found out that the optimal the results for each set is the following: 
+\begin{enumerate}
+    \item For the first set, a db scan cluster was used after reducing the dimensions of the feature using auto encoders. 
+    \item For the second set, DB scan clustering was used after decomposing the feature to a singular value. 
+    \item For the third and fourth set, a simple k means algorithm was performed following a principal component analysis. 
+\end{enumerate}
+After obtaining our clusters, we even extracted the most common words used in the job titles and descriptions. We have also performed a sentiment analysis to validate which words were positively perceived. \\ \\ 
+Once our models were tuned and ready, we loaded them and imported them into our web application used Django. All we had left to do was to create a view model by which a user can interact with through sent requests and responses received as a token. 
+\subsubsection{Detailed Description of Sub-pieces}
+In this step, we will delve into the source code, explain the methods that were used, and report about all the test cases that were performed. \\ \\
+\textit{Note that we will skip the first part, as the explanation will become redundant due to the lack of details.}
+\paragraph{4.3.3.1 Data pre-processing} : As explained earlier, this step consists of three sub categories:
+\begin{enumerate}
+    \item Data gathering (already explained in depth)
+    \item Data cleaning.
+    \item Data visualization.
+\end{enumerate}
+In the data cleaning part, we first upload our excel file and define a path variable for it: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{1.png}
+    \caption{Uploading the excel file to our notebook}
+    \label{fig:enter-label}
+\end{figure}
+We import two libraries that will allow us to read the file and store it in the \textbf{data} variable. \\
+Following this, we start pre-processing each feature one by one. We first tackle \textbf{pay\_period} and \textbf{remote}:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{3.png}
+    \caption{Code block which handles those features}
+    \label{fig:enter-label}
+\end{figure}
+In this code block, we first create a function to fill the empty pay period cells according to their salaries. Since our data is based in the United-States, we know for sure that minimum wage laws insure specific thresholds for pay, even if it is an entry level job, meaning that it is virtually impossible to find a yearly paid job that provides around a thousand dollar a \textbf{year}.  \\ 
+And so, if a column has a medium salary of 100\$, we know with good confidence that the pay is not monthly or yearly. \\ \\
+We then 0-1 hot encode the \textbf{remote} feature. Instead of amputating the empty cells, we did something we think is
+better: As the later half part of the code shows, we search in the \textbf{description} or \textbf{title} features if the word \textbf{remote} exists, if it does, we replace the empty cell by one, if it does not we replace by zero. This code block is actually an improved version of the following block, which differs in the way that it automatically assumes that empty cells should be replaced with zero: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{two.png}
+    \caption{Original code}
+    \label{fig:enter-label}
+\end{figure}
+We can now see that the \textbf{remote\_allowed} feature is properly handled: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.10\linewidth]{image.png}
+    \caption{\textbf{remote\_allowed column}}
+    \label{fig:enter-label}
+\end{figure}
+Of course, it should not be necessary to say the column spans more than five thousand lines. \\ \\
+The next features that were handled all together were the set of numerical salaries. We decided to normalize them using z-score standardization: Here is the following formula we have used: 
+\begin{equation}
+Z = \frac{X - \mu}{\sigma}
+\end{equation}
+Where mu is the is the mean of the data and sigma the standard deviation of the population, additionally, here is the code for the following operation:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{5.png}
+    \caption{Code snippet of the operation}
+    \label{fig:enter-label}
+\end{figure}
+We can see here that we are filling the empty cells with the mean of each values, we then proceed by standardizing them using the formula shown earlier. \\ \\
+An alternative block was used prior to implemented the one previously shown which involved grouping the values based n certain indices before implementing the same steps. However it did not show the results we were anticipating: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{four.png}
+    \caption{Alternative code block}
+    \label{fig:enter-label}
+\end{figure}
+Either way, here is the final output after applying the pre-processing steps: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\linewidth]{normalized.png}
+    \caption{Normalized values}
+    \label{fig:enter-label}
+\end{figure}
+The next step is to 0-1 hot label encode the \textbf{work-type} feature: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{6.png}
+    \caption[Applying the encoded]
+    \label{fig:enter-label}
+\end{figure}
+As we can see, we are first mapping each type of work to a digit, we are then replace inwardly each values with the correct one to one mapping. The following is output of our algorithm: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\linewidth]{worktypeencoded.png}
+    \caption{After encoding work type}
+    \label{fig:enter-label}
+\end{figure}
+The next step is to encode the \textbf{currency} feature. Since our data is concentrated in the united-states, we decided to split our data this way: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{7.png}
+    \caption{Encoded currency}
+    \label{fig:enter-label}
+\end{figure}
+As the reader might already have noticed, we have replaced the 'USD' currency with 1, and the rest with 0, here is the output: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{currency_encoded.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+We can see the change being reflected accordingly. \\ \\
+Next, we encode the feature \textbf{compensation\_type}. Since people can either receive a simple base salary or something other than a base salary, regardless of what it is, we encode this in the following fashion: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{8.png}
+    \caption{Encoding compensation\_type}
+    \label{fig:enter-label}
+\end{figure}
+We simply replace the base salary with 0, and the rest with 1. Here is the result visualized: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\linewidth]{image.png}
+    \caption{currency\_encoded}
+    \label{fig:enter-label}
+\end{figure}
+Of course, it should be obvious that once we encode a categorical column, we drop the one with the original filling. Here as example: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{9.png}
+    \caption{Dropping the original currency column}
+    \label{fig:enter-label}
+\end{figure}
+The following process was our first encounter with a textual feature. Initially, we applied a process called TF-IDF vectorization. 
+ Term Frequency-Inverse Document Frequency, or as commonly called TF-IDF, is a "numerical statistic used in text mining and natural language processing to reflect how important a word is to a document in a collection or corpus. It is commonly used as a weighting factor in text searches and text classification." The goal here is to transform the textual data, which the computer cannot understand, to some sort of coherent numerical statistic.
+ The process can be broken down into three parts: \\ \\
+ \textbf{Term Frequency (TF):} Measures how frequently a term (word) appears in a document. The more frequently a term appears in a document, the higher its TF score. \\ \\ 
+ \begin{equation}
+     \text{TF}(t, d) = \frac{\text{Number of times term } t \text{ appears in document } d}{\text{Total number of terms in document } d}
+ \end{equation}
+  \textbf{Inverse Document Frequency (IDF):} Measures how important a term is within the entire document set or corpus. The rarer the term in the corpus, the higher its IDF score. It is calculated as: \\ \\ 
+ \begin{equation}
+    \text{IDF}(t) = \log \left(\frac{\text{Total number of documents}}{\text{Number of documents with term } t}\right)
+ \end{equation}
+\textbf{TF-IDF:} The resulting score indicates the importance of a term in a specific document relative to its prevalence in the whole corpus: \\ \\ 
+ \begin{equation}
+    \text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)
+ \end{equation}
+ Now that we have explained the actual process from theoretical perspective, let us see it through code: 
+ \begin{figure}[H]
+     \centering
+     \includegraphics[width=1\linewidth]{10.png}
+     \caption{Vectorizing skill description }
+     \label{fig:enter-label}
+ \end{figure}
+We can see here how we apply the vectorizer. We also add a binary mapping to check whether there the cell is null or nut. We ended up not using this feature, as too many cells were empty, and neither amputation nor replacement could have improved our results. Still, explaining the process is important, as we have other textual data where we will use this technique. \\ \\
+Coming to the \textbf{title} feature, we tried to apply first two distinct methods to pre-process it. However, with neither of them yielding a proper result, we ended up using a mix of both. 
+\\ \\
+Nevertheless, here are the initial code snippets: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{method 1.png}
+    \caption{Method one}
+    \label{fig:enter-label}
+\end{figure}
+In this method, we simply apply the same TF-IDF vectorization. A much more advanced process was involved later. We shall break down the large block into two parts:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{11.1.png}
+    \caption{Processing title step one}
+    \label{fig:enter-label}
+\end{figure}
+In the following block of code, we are applying 5 different layers to our title data: 
+\begin{enumerate}
+    \item We are converting it to lowercase, and then tokenizing it. Tokenizing data essentially refers to breaking a sentence into smaller blocks. 
+    \item We then remove stop words in order to facilitate the processing and in order to achieve uniform consistency across the board. 
+    \item We also remove stop words for the same reason.
+    \item We apply stemming in order to convert words to their root forms. For example, the words "running," "runs," and "runner" may all be reduced to the root "run."
+    \item We then apply lemmatization, which is a more agressive form of stemming. (Conversion of the words to their base dictionary/lemma). This way, we capture noise that was not captured in the previous layer. 
+\end{enumerate}
+The second block of code is a failed alternative test. Instead of using TF-IDF vetorization, we tried using a technique called Word2Vec. Word2Vec is a neural network that captures semantic meanings behind words. However, we later did not see ay improvement in the sort of cluster we were doing. Here is the code in case the reader is curious: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{11.2.png}
+    \caption{Word2Vec implementation}
+    \label{fig:enter-label}
+\end{figure}
+We can see here that some logic is being applied. We apply group the words by mean vectors and return 0 if the words are not valid, then we apply the vectors to each processed title. Again however, we will see later what we have used in the model explanation step. \\ \\ 
+We then work on the \textbf{experience\_level} feature. As the reader ca already tell, we will use the same mapping technique used previously: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{12.png}
+    \caption{Experience mapping logic}
+    \label{fig:enter-label}
+\end{figure}
+As the reader may already notice, we are mapping each experience level to a corresponding integer. We are also replacing missing data by -1. Here is the output of our function(s): 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\linewidth]{mapping output 3.png}
+    \caption{Output of the mapping}
+    \label{fig:enter-label}
+\end{figure}
+The next step consists of pre-processing \textbf{pay\_period\_HOURLY, pay\_period\_MONTHLY, and pay\_period\_YEARLY}. 
+We also follow the same steps we have used earlier: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{13.png}
+    \caption{Pay period prepocessing}
+    \label{fig:enter-label}
+\end{figure}
+Here, we are simply mapping the categorical TRUE and FALSE values to their appropriate numeric values. We also drop the original columns as we no longer need them: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{mapping4.png}
+    \caption{Mapping the pay period features}
+    \label{fig:enter-label}
+\end{figure}
+Finally, we handle \textbf{views} and \textbf{applies} features. In the following, we assumed that all empty cells are equal to 0. That is because you cannot hide the amount of views and applications on one's form. Meaning that all empty cells are places where the API has failed to retrieve any data whatsoever. Here is the simple code snippet illustrating our explanation: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{14.png}
+    \caption{Encoded applies and views}
+    \label{fig:enter-label}
+We can see that we fill the empty values with null. 
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{aplp.png}
+    \caption{Viws and applies column}
+    \label{fig:enter-label}
+\end{figure}
+Now that we have finished explaining the data cleaning part, let us move to data visualization. Using various rendering libraries, we have drawn many graphs that elucidate to us hidden patterns within the data. \\ \\
+Starting with a basic visualization of the distribution of salaries, we wrote this block of code: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{plot1.png}
+    \caption{Code block which plots the salary distribution}
+    \label{fig:enter-label}
+\end{figure}
+We run the cell and get the following output: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{plot11.png}
+    \caption{Salary Distribution}
+    \label{fig:enter-label}
+\end{figure}
+Analyzing the graph, we notice various intricacies: \\ \\
+Regarding the distribution, all three salary ranges have data points heavily concentrated near the lower end of the salary scale, with the \textbf{median salary} (feature) having the highest peak due to many salaries being close to the median. \\ \\
+The \textbf{min salary} (feature) has a distribution that also peaks near the low end, which is expected.\\ \\
+The \textbf{max salary} (feature) shows a wider distribution and peaks slightly higher than the min, with the curve gradually falling off toward higher salaries. \\ \\ 
+Generally speaking, the distributions are all skewed to the right, indicating that most salaries are relatively low, but there are some higher salaries that stretch the tail of the distribution.
+There is a sharp peak in the Median Salary, indicating a high frequency of salaries around a specific value. \\ \\
+The next graph is a scatter plot to show the relationship between the \textbf{views} and \textbf{applies} features. Here is the source code: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{graph2.png}
+    \caption{Scatter plot code}
+    \label{fig:enter-label}
+\end{figure}
+Compiling this code gives us the following graph:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{graph22.png}
+    \caption{Scatter plot}
+    \label{fig:enter-label}
+\end{figure}
+From the scatter plot, we see a positive correlation between the number of applications and number of views (obviously). We also see that most of the data is concentrated in the lower end of the curve. Meaning that we have a skewed representation of the data (unfortunately) \\ \\
+The next graph is a simple pie chart which shows the proportion of jobs where remote work is allowed and the jobs where it is not. Here is the code which will produce it: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Pichart1.png}
+    \caption{pie chart code}
+    \label{fig:enter-label}
+\end{figure}
+The output becomes the following: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{plot3.png}
+    \caption{Pie chart of remote works}
+    \label{fig:enter-label}
+\end{figure}
+We also see an uneven distribution here, but this makes perfect sense, as most jobs cannot operate from a distance.
+\\ \\
+The next chart is a pie chart which visualizes the distribution of the way salaries are handed. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{code 5.png}
+    \caption{Pie chart code for salaries}
+    \label{fig:enter-label}
+\end{figure}
+We obtain the following result: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{fig4.png}
+    \caption{Pie chart of salaries}
+    \label{fig:enter-label}
+\end{figure}
+Almost all salaries are listed on a yearly format basis. Which is typical in the united-states. \\ \\ 
+The next chart is a bar chart showing the distribution of four features, being \textbf{work\_type, currency, compensation\_type, and experience level}: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{plot5code.png}
+    \caption{Bar chart code}
+    \label{fig:enter-label}
+\end{figure}
+The code renders the following graph: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{bar chart plot.png}
+    \caption{Bar chart(s)}
+    \label{fig:enter-label}
+\end{figure}
+Taking a look at the charts, we need first to trace back the original labels to get a comprehensive understanding. We first notice in the upper left chart that full timers make most of the work types. From the upper right chart, we surprisingly see a slightly higher proportion of jobs which offer currencies other than USD, despite remote job being fairly low. On the bottom left, we see notice that more jobs offers compensation type than jobs that do not, and finally, in the bottom right corner, we notice a logical distribution of a peak in mid-senior level experience, and a very low demand on executive level experience. \\ \\
+The final plot which we have decided to render, and which arguably is the most important, is the correlation matrix. \\ \\ 
+The correlation matrix shows us the relationship between two variables, which can have negative, positive or zero correlation: Moreover, here is the equation which was used to calculate the correlation of each entry on the matrix: 
+\begin{equation}
+r_{XY} = \frac{\sum_{i=1}^n (X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^n (X_i - \bar{X})^2 \sum_{i=1}^n (Y_i - \bar{Y})^2}}
+\end{equation}
+\begin{itemize}
+    \item \( r_{XY} \) is the Pearson correlation coefficient between \( X \) and \( Y \).
+    \item \( X_i \) and \( Y_i \) represent individual sample points.
+    \item \( \bar{X} \) and \( \bar{Y} \) are the means of the \( X \) and \( Y \) variables, respectively.
+    \item \( n \) is the number of samples.
+\end{itemize}
+Here is code, applying the formula just explained: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{coorr.png}
+    \caption{correlation block}
+    \label{fig:enter-label}
+\end{figure}
+And here is the full correlation matrix: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{corroleation matrix.png}
+    \caption{correlation matrix}
+    \label{fig:enter-label}
+\end{figure}
+We can see from the matrix some interesting relations, notably: \\ \\
+\textbf{High Positive Correlation (Close to 1.0):} \\ 
+max\_salary and min\_salary (0.99): Very high correlation, indicating that the maximum and minimum salaries in the dataset are closely related.
+max\_salary and formatted\_experience\_level\_encoded (0.91): High correlation suggests that the maximum salary is significantly influenced by the level of experience encoded in the data. \\ \\
+\textbf{High Negative Correlation (Close to -1.0):} \\ \\
+pay\_period\_YEARLY and pay\_period\_HOURLY (-0.95): A strong negative correlation implies that these pay periods are oppositely coded.
+Moderate Positive Correlation:
+views and applies (0.91): Indicates that an increase in the number of views of job postings correlates with an increase in the number of applies. (As we have seen earlier) \\ \\
+\textbf{applies and formatted\_experience\_level\_encoded (0.91):} Suggests that applies have a significant correlation with the encoded experience level, which makes perfect sense. \\ \\
+Moderate Negative Correlation:
+\textbf{pay\_period\_YEARLY and compensation\_type\_encoded (-0.29):} A moderate negative relationship that could suggest certain compensation types align inversely with yearly pay periods.
+\paragraph{4.3.3.2 Data Model training} You may recall from the block level description that we have used specific algorithms for sets of features. Before we proceed with the explanation of the code, 1) here is a detailed view of the algorithms we have used. 2) We shall also provide a brief explanation for each of them, 3) Finally, we shall explain the metrics we have employed to measure the performance of our algorithms and interpret the results. \\ \\
+1) \textbf{Model strategy:} Since the data does not inherently end with some sort of categorical output, meaning that it does not provide an answer to each row whether the job is trendy or not, we needed to employ efficient algorithms designed for \textbf{unsupervised learning}. Thus, here are all the algorithms we have used for each set of features (recall in that in the block level description, we have only mentioned the most efficient ones):
+\begin{itemize}
+    \item For the \textbf{title} feature, we have used k-means (twice), Gaussian mixture clustering (GMM), db-scan clustering (once using auto encoders and once using SVD, and spectral clustering. We have also used our clusters and found the most frequent occurrences of words in them. 
+    \item For the \textbf{description} feature, we have used dbscan clustering, with a prior step of changing the space to SVD. Additionally, we have found the most common words in the description clusters, and also performed a sentiment analysis. 
+    \item For the set of \textbf{salaries}, we have used a simple k-means algorithm. 
+    \item For the rest of the categorical features, we have used k-means algorithm. 
+\end{itemize}
+Here is a brief explanation for each algorithm we have used: \\ \\
+
+\textbf{-Explanation of k-means:} \\ \\ 
+The K-means algorithm is a popular clustering method used to partition a dataset into K clusters, each represented by its centroid. It iteratively assigns data points to the nearest centroid and then updates the centroid based on the mean of the assigned points. Here is the pseudo code of the algorithm: 
+\begin{algorithm}[H]
+\caption{K-Means Algorithm}
+\KwIn{$X = \{x_1, x_2, \ldots, x_n\}$ (dataset), $K$ (number of clusters)}
+\KwOut{$C$ (set of centroids), $A$ (cluster assignments)}
+Initialize $C = \{c_1, c_2, \ldots, c_K\}$ (randomly or heuristically)\\
+\Repeat{convergence}{
+    \ForEach{$x_i \in X$}{
+        $A_i \gets \arg\min_{k} \|x_i - c_k\|$ (assign $x_i$ to the nearest centroid)
+    }
+    \ForEach{$k \in \{1, \ldots, K\}$}{
+        $C_k \gets \frac{1}{|A_k|} \sum_{x_i \in A_k} x_i$ (update centroids)
+    }
+}
+\end{algorithm}
+
+To summarize, we are basically  choosing K initial centroids, which can be randomly selected or based on some heuristic, then we assign each data point to the closest centroid based on some distance metric. We recalculate the centroids as the mean of all data points assigned to each cluster, and then repeat the assignment and update steps until the centroids do not change significantly or a maximum number of iterations is reached. \\ \\
+
+\textbf{-Explanation of 
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise)}: \\ \\
+DBSCAN is a density-based clustering algorithm used to identify clusters in large datasets. Itis particularly useful for discovering clusters of arbitrary shapes and is robust to noise (outliers). Her is the pseudo code of the algorithm: 
+\begin{algorithm}[H]
+\caption{DBSCAN Algorithm}
+\KwIn{$D$ (dataset), $\epsilon$ (radius), $MinPts$ (minimum points)}
+\KwOut{Clusters and noise}
+Mark all points as unvisited\;
+\ForEach{$p \in D$}{
+    \If{p is unvisited}{
+        Mark $p$ as visited\;
+        $N \gets$ neighbors of $p$ within $\epsilon$\;
+        \If{$|N| < MinPts$}{
+            Mark $p$ as noise\;
+        }
+        \Else{
+            Create new cluster\;
+            ExpandCluster($p$, $N$, $\epsilon$, $MinPts$)\;
+        }
+    }
+}
+\SetKwFunction{FExpandCluster}{ExpandCluster}
+\SetKwProg{Fn}{Function}{:}{}
+\Fn{\FExpandCluster{$p$, $N$, $\epsilon$, $MinPts$}}{
+    Add $p$ to current cluster\;
+    \ForEach{$n \in N$}{
+        \If{n is unvisited}{
+            Mark $n$ as visited\;
+            $N_{new} \gets$ neighbors of $n$ within $\epsilon$\;
+            \If{$|N_{new}| \geq MinPts$}{
+                $N \gets N \cup N_{new}$\;
+            }
+        }
+        \If{n is not yet assigned to a cluster}{
+            Add $n$ to the current cluster\;
+        }
+    }
+}
+\end{algorithm}
+Here, all points are initially unvisited. When a core point is found, the cluster is expanded by recursively adding reachable points, then, the neighborhood of each point is determined using the epsilon distance and MinPts. \\ \\
+\textbf{-Explanation of gmm clustering}: \\ \\
+Gaussian Mixture Models (GMMs) are probabilistic models that assume the data is generated from a mixture of several Gaussian distributions with unknown parameters. GMM clustering is commonly used when clusters are not linearly separable or have elliptical shapes. Here is the algorithm we have used: 
+\begin{algorithm}[H]
+\caption{GMM Clustering (EM Algorithm)}
+\KwIn{$X$ (dataset), $K$ (number of components), $\epsilon$ (convergence threshold)}
+\KwOut{Gaussian components (mean, covariance, mixing coefficients)}
+Initialize parameters (means, covariances, mixing coefficients) randomly\;
+\Repeat{convergence}{
+    \textbf{E-Step:} Calculate responsibilities\;
+    \ForEach{$x_i \in X$}{
+        \ForEach{$k \in \{1, \ldots, K\}$}{
+            $\gamma_{ik} \gets$ responsibility of component $k$ for point $x_i$\;
+        }
+    }
+    \textbf{M-Step:} Update parameters\;
+    \ForEach{$k \in \{1, \ldots, K\}$}{
+        $N_k \gets \sum_{i=1}^{n} \gamma_{ik}$\;
+        $\mu_k \gets \frac{1}{N_k} \sum_{i=1}^{n} \gamma_{ik} x_i$\;
+        $\Sigma_k \gets \frac{1}{N_k} \sum_{i=1}^{n} \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^T$\;
+        $\pi_k \gets \frac{N_k}{n}$\;
+    }
+}
+\end{algorithm}
+
+Here, we are randomly initializing the Gaussian parameters. We then calculate the responsibilities, which are the probabilities that each data point belongs to each component, and update the parameters of the Gaussian components (means, covariances, and mixing coefficients) based on the responsibilities. \\ \\ 
+GMM clustering is more flexible than K-means because it accounts for varying cluster shapes and can handle overlapping clusters. It requires choosing the number of components beforehand and can be sensitive to initialization, but it’s a powerful tool for probabilistic clustering. \\ \\
+
+\textbf{-Explanation of spectral clustering:} \\ \\ 
+Spectral clustering is a technique that uses the spectrum (eigenvalues) of the similarity matrix of the data to perform dimensionality reduction before applying a standard clustering algorithm like K-means. It is particularly useful for identifying non-linear cluster structures that are not easily separable in the original feature space. Here is the pseudo-code:
+\begin{algorithm}[H]
+\caption{Spectral Clustering}
+\KwIn{$X$ (dataset), $K$ (number of clusters)}
+\KwOut{Cluster assignments}
+Calculate similarity matrix $W$\;
+Calculate the degree matrix $D$ with $D_{ii} = \sum_{j} W_{ij}$\; \\  
+Calculate Laplacian matrix $L = D - W$\;
+Calculate the normalized Laplacian $L_{sym} = D^{-1/2} L D^{-1/2}$\; \\ 
+Compute the top $K$ eigenvectors of $L_{sym}$ to form matrix $U$\; \\ 
+Normalize rows of $U$ to have unit length\; \\ 
+Apply K-means clustering on rows of $U$\;
+\end{algorithm}
+The algorithm performs the following steps: It first computes a similarity matrix to represent relationships between data points, then calculates the graph Laplacian matrix from the similarity matrix. It also uses eigenvectors of the Laplacian to transform data into a lower-dimensional space. Following those transformations, it applies K-means on the data to identify clusters. \\ \\
+We have also mentioned the notion of autoencoders, thus we also need to explain them briefly before proceeding with the implementation: \\ \\ 
+\textbf{-Explaining autoencoders}:  \\ \\ 
+Autoencoders are a type of artificial neural network designed to learn efficient data encodings in an unsupervised manner. They are used for dimensionality reduction, feature learning, and data denoising. \\ \\
+An autoencoder consists of two main parts: \\ 
+\textbf{Encoder:} Maps the input data to a lower-dimensional representation, often called the bottleneck or latent space. \\ 
+\textbf{Decoder:} Reconstructs the input data from the lower-dimensional representation.
+\\ \\ 
+Now that we have explained all the key terms we need, let us proceed with the implementation: \\ \\ 
+Our first attempt was to cluster the title feature: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{k means1.png}
+    \caption{Code for the title feature}
+    \label{fig:enter-label}
+\end{figure}
+We highlight three important details: First, we are vectoring our data in a rudimentary way using TF-IDF vecotrization. We then cluster the data using 5 centroids, and plot the result: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{k1.png}
+    \caption{First cluster of titles}
+    \label{fig:enter-label}
+\end{figure}
+We notice first that the dimension has been reduce to 2 using PCA (principal component analysis). We notice a prevalence in the yellow and green clusters, which provide a wider set of jobs. We also notice a few outliers. \\ \\
+In order to test the accuracy of this model, we use three distinctive metrics: 
+\begin{enumerate}
+    \item \textbf{Silhouette Score:} A metric which measures the quality of clusters by evaluating how similar a point is to its own cluster compared to other clusters. It ranges from -1 to 1, where higher values indicate better-defined clusters. The formula for the given equation is the given: 
+    \begin{equation}
+    s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}}
+    \end{equation}
+    Where \(a(i)\) is the average distance of point \(i\) to all other points in the same cluster and \(b(i)\) is the average distance of point \(i\) to all points in the nearest cluster.
+    \item \textbf{Calinski-Harabasz Index}: A metric used for assessing the ratio of the sum of between-cluster dispersion and within-cluster dispersion. Higher scores indicate better cluster separation.  The formula for the given equation is the given: \begin{equation}
+    CH = \frac{\mathrm{Tr}(B_k) / (k - 1)}{\mathrm{Tr}(W_k) / (n - k)}
+    \end{equation}
+    Where 
+    \(\mathrm{Tr}(B_k)\) is the trace of the between-group dispersion matrix. \\ 
+     \(\mathrm{Tr}(W_k)\) is the trace of the within-cluster dispersion matrix. \\ 
+     \(k\) is the number of clusters. \\
+    \(n\) is the total number of points.
+    \item \textbf{Davies-Bouldin Index}: Measures the average similarity ratio of each cluster with its most similar cluster. Lower scores indicate better clusters. Here is the formula:
+    \begin{equation}
+    DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \frac{s_i + s_j}{d_{ij}}
+    \end{equation}
+    Where: \\ 
+     \(s_i\) and \(s_j\) are the average distances of all points in clusters \(i\) and \(j\), respectively, from their centroids. \\
+     \(d_{ij}\) isvthe distance between the centroids of clusters \(i\) and \(j\). \\ 
+     \(k\) is the number of clusters.
+\end{enumerate}
+Computing the previously explained scores, we get the following number: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{metrics 1 .png}
+    \caption{Scores computed (1)}
+    \label{fig:enter-label}
+\end{figure}
+From the code's output, we notice average efficiency in the two first scores, but terrible values in the third one. \\ \\
+In an early attempt to improve the results, and instead of radically changing the formula, we have performed two distinct analysis to find the optimal number of clusters needed, we got the following result: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{analysis.png}
+    \caption{Silhouette and elbow method analysis}
+    \label{fig:enter-label}
+\end{figure}
+Those two methods are used to find the optimal number of clusters needed t yield the best result, which in this case is \textbf{seven}: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{analysiss.png}
+    \caption{Silouhette and elbow curve}
+    \label{fig:enter-label}
+\end{figure}
+As we can see, a peak growth happens between 7 clusters for the silhouette score, and a peak decrease in the sum of the the squares happens also with the same number. \\ 
+We then rerun the same cell but with seven clusters and get the following: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.51\linewidth]{cluster2.png}
+    \caption{Second cluster of titles}
+    \label{fig:enter-label}
+\end{figure}
+We notice that the figure remains almost the same, just with slightly better separated shape giving a less monolithic structure. \\ \\
+After a clearly failed attempt, we have tried a different approach using gmm clustering: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{cluster3code.png}
+    \caption{gmm clustering code}
+    \label{fig:enter-label}
+\end{figure}
+We are clustering only using 2 nodes, as it was gave us the most efficent run: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{cluster3.png}
+    \caption{gmm cluster plot}
+    \label{fig:enter-label}
+\end{figure}
+We can see that dark red cluster covers most of the input, with a lot of disparity within the same cluster. We can already see forseight that the metrics will be bad: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{anal2.png}
+    \caption{Results for the gmm cluster}
+    \label{fig:enter-label}
+\end{figure}
+Seeing that the results are not improving, we decided to do a radical change. We changed spaces using SVD instead of PCA, and applied a more strict pre-processing layer, similar to the one we have explained way earlier. Additionally, we decided to use db scan instead of the gmm clustering used earlier: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.5\linewidth]{code 4.png}
+    \caption{Code snippet for the steps explained earlier}
+    \label{fig:enter-label}
+\end{figure}
+Here a quick walk-through of the code: 
+\begin{enumerate}
+    \item We are first cleaning the text by applying a specific regex pattern. 
+    \item We normalize it all to lowercase. 
+    \item We then tokenize the data
+    \item Finally, we apply TF-IDF vectorization, and proceed with the dbscan clustering.
+\end{enumerate}
+The following is the output of the results which we have proceeded with: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{dbscan1.png}
+    \caption{db scan for title}
+    \label{fig:enter-label}
+\end{figure}
+We can see a slow variation of the data the prioritized SVD component, with few data points on the lower end of the variation. A more balanced distribution is seen on the second most important SVD factor. \\ \\
+As we have proceeded with the preceding clusters, we need to test the efficiency of the new methods we have used: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{efewfwe.png}
+    \caption{db scan title metrics}
+    \label{fig:enter-label}
+\end{figure}
+A solid 30\% improvement, but we can still do much better. \\ \\
+We now use almost the same code, but employ spectral clustering instead of db scan, here is the implementation code: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{spe.png}
+    \caption{spectral clustering code}
+    \label{fig:enter-label}
+\end{figure}
+The astute reader may notice that we are using the same number of clusters as the optimal version of the k-means implementation we have used. As you may remember, spectral clustering wrap the outer layer with a basic k-means algorithm. Running the code, we get the following output: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{spec.png}
+    \caption{Spectral clustering plot}
+    \label{fig:enter-label}
+\end{figure}
+We notice better defined clusters, with a low but better distinction between the features. Here is the proof: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{met4r34r.png}
+    \caption{spectra metrics}
+    \label{fig:enter-label}
+\end{figure}
+We see almost a 100\% improvement, which a great, but the metrics remain unacceptable for industry standards. \\ \\
+A final try was performed using auto-encoders, which, as explained earlier, is a more advanced way of performing dimensionality reduction: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{r4rr4r4r.png}
+    \caption{Auto encoder code}
+    \label{fig:enter-label}
+\end{figure}
+Using the same pre-processing steps we have employed earlier, we add the encode, decoder, and dense, layer, then we train the model over 50 epochs till the loss function converges to a certain fixed value. Of course, we scale the data before doing so, thus applying all the necessary proper steps. Finally, we apply the dbscan algorithm and check our results. (we had a spectral cluster+autoencoder setup, but it did not work great): 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{edee.png}
+    \caption{Metrics post autoencoder}
+    \label{fig:enter-label}
+\end{figure}
+We can see even further improvement. This was also the result recorder from a second test run, the first one gave a Davies-Bouldin index of 0.9, which a model that is ready to use. \\ \\ 
+We have managed to achieve a 300\% improvement, and as we have mentioned earlier, we have managed to find the most common words used in some of the clusters: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{mse.png}
+    \caption{Most common words function}
+    \label{fig:enter-label}
+\end{figure}
+The following function loops through the reverse vectorized feature and find the mean frequency of each word. \\ \\ Here the output of the function: 
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        senior & 0.398626 \\
+        manager & 0.071903 \\
+        accountant & 0.060303 \\
+        engineer & 0.049914 \\
+        analyst & 0.046272 \\
+        financial & 0.024437 \\
+        developer & 0.024176 \\
+        data & 0.023869 \\
+        project & 0.023757 \\
+        technical & 0.023017 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 0 Top Words}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        nurse & 0.256670 \\
+        registered & 0.230418 \\
+        rn & 0.178622 \\
+        travel & 0.135450 \\
+        wk & 0.110202 \\
+        job & 0.104760 \\
+        make & 0.066529 \\
+        nursing & 0.057684 \\
+        facility & 0.050576 \\
+        available & 0.046754 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 1 Top Words}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        specialist & 0.453588 \\
+        support & 0.054491 \\
+        sales & 0.038181 \\
+        service & 0.027217 \\
+        customer & 0.022754 \\
+        operations & 0.022032 \\
+        senior & 0.021888 \\
+        marketing & 0.020048 \\
+        communications & 0.019030 \\
+        technical & 0.017347 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 2 Top Words}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        engineer & 0.414165 \\
+        software & 0.086797 \\
+        project & 0.041838 \\
+        mechanical & 0.038385 \\
+        lead & 0.031858 \\
+        sr & 0.031549 \\
+        electrical & 0.029322 \\
+        manufacturing & 0.027713 \\
+        design & 0.023697 \\
+        data & 0.023349 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 3 Top Words}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        technician & 0.032396 \\
+        assistant & 0.027031 \\
+        analyst & 0.025991 \\
+        director & 0.024681 \\
+        coordinator & 0.019056 \\
+        sales & 0.018744 \\
+        representative & 0.017862 \\
+        time & 0.017361 \\
+        supervisor & 0.016600 \\
+        lead & 0.014186 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 5 Top Words}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        manager & 0.359768 \\
+        account & 0.078332 \\
+        sales & 0.074595 \\
+        project & 0.059389 \\
+        global & 0.059174 \\
+        assistant & 0.045346 \\
+        store & 0.038276 \\
+        program & 0.026376 \\
+        operations & 0.022721 \\
+        regional & 0.022629 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 6 Top Words}
+\end{table}
+
+We can draw a lot of conjectures using those tables: \\ 
+For instance, a lot terms that should logically make sense actually appear in the top of the tables: Things like \textbf{"nurse"},  \textbf{"experience"}, or \textbf{"manager"}, etc... It seems like jobs with experience are a lot more in demand than entry-level jobs. \\ \\ 
+The next set that we have clustered is the \textbf{description} set.
+Thankfully, the distribution of the data allowed us to be lucky and get respectable results within one try.
+The following are the steps we have followed: \\
+We first apply the same pre-processing steps we have used with the \textbf{title} feature:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{rfr.png}
+    \caption{Pre-procesing \textbf{description}}
+    \label{fig:enter-label}
+\end{figure}
+Since the code remains relatively the same, we will not explain it again. \\ \\ 
+Since the description cells are relatively big, we proceed with dimentionality reduction using truncated SVD instead of normal SVD, this way, we save on computation: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{efr3f.png}
+    \caption{truncated SVD}
+    \label{fig:enter-label}
+\end{figure}
+Note that the variance ratio here is around 40\%, meaning that we capture around half the variance found in the original dataset. \\ \\
+As previously mentioned, we clustered our data using db-can:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{s3.png}
+    \caption{Db scan \textbf{description} cluster}
+    \label{fig:enter-label}
+\end{figure}
+We can see here that our epsilon value equals 0.5, and the number of min\_sample is equals to 5 (0 included). Visualizing our result, we get the following plot: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{de.png}
+    \caption{db-scan \textbf{descpriotn} cluster visualized}
+    \label{fig:enter-label}
+\end{figure}
+
+
+
+
+
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        experience & 0.059148 \\
+        work & 0.053863 \\
+        team & 0.049639 \\
+        customer & 0.049009 \\
+        service & 0.041837 \\
+        project & 0.039396 \\
+        company & 0.037490 \\
+        skill & 0.037076 \\
+        business & 0.037063 \\
+        patient & 0.036279 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 0 Top Words}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        credit & 0.351303 \\
+        sale & 0.344656 \\
+        business & 0.321557 \\
+        personal & 0.276454 \\
+        consulting & 0.182812 \\
+        managing & 0.176719 \\
+        promotion & 0.176348 \\
+        owner & 0.175651 \\
+        small & 0.167304 \\
+        monthly & 0.150930 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 1 Top Words}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        rate & 0.392093 \\
+        assignment & 0.278965 \\
+        healthcare & 0.231836 \\
+        job & 0.222794 \\
+        travel & 0.206696 \\
+        group & 0.203050 \\
+        contact & 0.163627 \\
+        accredited & 0.141313 \\
+        staffing & 0.138200 \\
+        best & 0.127455 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 2 Top Words}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        cogent & 0.619990 \\
+        network & 0.225113 \\
+        vaccination & 0.162162 \\
+        sale & 0.126762 \\
+        policy & 0.115779 \\
+        covid & 0.106645 \\
+        selling & 0.089213 \\
+        internet & 0.089136 \\
+        business & 0.086787 \\
+        service & 0.086493 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 3 Top Words}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        clinician & 0.461137 \\
+        travel & 0.376138 \\
+        week & 0.224461 \\
+        care & 0.208963 \\
+        nurse & 0.199493 \\
+        experienced & 0.193127 \\
+        agency & 0.176311 \\
+        contract & 0.175550 \\
+        patient & 0.168350 \\
+        state & 0.161677 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 4 Top Words}
+\end{table}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Score} \\
+        \hline
+        store & 0.326802 \\
+        representative & 0.251879 \\
+        customer & 0.246724 \\
+        availability & 0.182527 \\
+        customer service & 0.175295 \\
+        carry & 0.159785 \\
+        daily & 0.155673 \\
+        pound & 0.148033 \\
+        friendly & 0.146594 \\
+        service & 0.130571 \\
+        \hline
+    \end{tabular}
+    \caption{Cluster 5 Top Words}
+\end{table}
+
+
+\end{document}
