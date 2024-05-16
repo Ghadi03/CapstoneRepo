@@ -1,11 +1,12 @@
 \documentclass{article}
-\usepackage{graphicx,hyperref} % Required for inserting images
+\usepackage{graphicx,hyperref} 
 \usepackage{float, enumitem, array}
 \usepackage{geometry}
 \usepackage{amsmath}
 \usepackage{algorithm}
 \usepackage{algorithmic,algorithm2e}
-
+\usepackage{pgfgantt}
+\usepackage{xcolor}
 
 \title{Capstone report}
 \author{Ghadi Ayoub \\ \\  Ali Abbani \\ \\ Submitted to Dr.Harmanani}
@@ -774,7 +775,7 @@ A final try was performed using auto-encoders, which, as explained earlier, is a
     \caption{Auto encoder code}
     \label{fig:enter-label}
 \end{figure}
-Using the same pre-processing steps we have employed earlier, we add the encode, decoder, and dense, layer, then we train the model over 50 epochs till the loss function converges to a certain fixed value. Of course, we scale the data before doing so, thus applying all the necessary proper steps. Finally, we apply the dbscan algorithm and check our results. (we had a spectral cluster+autoencoder setup, but it did not work great): 
+Using the same pre-processing steps we have employed earlier, we add the encode, decoder, and dense layer. The encode layer is using a rectifier function to reduce non linearity in the data, with output being pipelined to a binary sigmoid layer. We are also using the adam optimizer which provides us great learning rate for a small data sample. We train the model over 50 epochs till the loss function converges to a certain fixed value. Of course, we scale the data before doing so, thus applying all the necessary proper steps. Finally, we apply the dbscan algorithm and check our results. (we had a spectral cluster+autoencoder setup, but it did not work great): 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{edee.png}
@@ -942,17 +943,20 @@ As previously mentioned, we clustered our data using db-can:
 We can see here that our epsilon value equals 0.5, and the number of min\_sample is equals to 5 (0 included). Visualizing our result, we get the following plot: 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{de.png}
-    \caption{db-scan \textbf{descpriotn} cluster visualized}
+    \includegraphics[width=0.6\linewidth]{de.png}
+    \caption{db-scan \textbf{description} cluster visualized}
     \label{fig:enter-label}
 \end{figure}
+We notice that most of the jobs are clustered close to each others and belong to the same set. Meaning they are characterized in the same way. In order to further analyze our results, and synthesize them with the previous analysis. We performed two small additions: Another words per cluster frequency analysis, and a sentiment analysis. Here is the code for the former: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{3e.png}
+    \caption{Top feature analysis for \textbf{description}}
+    \label{fig:enter-label}
+\end{figure}
+We can see here that we are using the same logic we have previously employed, hence, we will not waste further time to explain it again. Here are the results, however: 
 
-
-
-
-
-
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -972,7 +976,7 @@ We can see here that our epsilon value equals 0.5, and the number of min\_sample
     \end{tabular}
     \caption{Cluster 0 Top Words}
 \end{table}
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -992,7 +996,7 @@ We can see here that our epsilon value equals 0.5, and the number of min\_sample
     \end{tabular}
     \caption{Cluster 1 Top Words}
 \end{table}
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -1012,7 +1016,7 @@ We can see here that our epsilon value equals 0.5, and the number of min\_sample
     \end{tabular}
     \caption{Cluster 2 Top Words}
 \end{table}
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -1032,7 +1036,7 @@ We can see here that our epsilon value equals 0.5, and the number of min\_sample
     \end{tabular}
     \caption{Cluster 3 Top Words}
 \end{table}
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -1052,7 +1056,7 @@ We can see here that our epsilon value equals 0.5, and the number of min\_sample
     \end{tabular}
     \caption{Cluster 4 Top Words}
 \end{table}
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -1072,6 +1076,302 @@ We can see here that our epsilon value equals 0.5, and the number of min\_sample
     \end{tabular}
     \caption{Cluster 5 Top Words}
 \end{table}
+Quite fascinatingly, we notice words analogous to the job titles we have found earlier. For instance, \textbf{vaccination}, \textbf{healthcare}, and other business related terms are topping their clusters. \\ \\
+As we have mentioned earlier, we did another sort of analysis called sentiment analysis, which measures the polarity of words ranging from positive to neutral and negative. Here is the code: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{w.png}
+    \caption{Sentiment analysis code}
+    \label{fig:enter-label}
+\end{figure}
+The function \textbf{SentimentIntensityAnalyzer()} will everything we need for us. Here is the output: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ww.png}
+    \caption{Sentiment plot}
+    \label{fig:enter-label}
+\end{figure}
+We can see here that the most of the words being employed are positively con-notated words, \textit{this does not mean} that they are job friendly words, but it proves the converse. It means that job descriptions employ terminologies that psychologically show positive outlook. \\ \\ 
+As for our model, it promisingly shows much better results than the previous one: 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{fr.png}
+    \caption{metrics for description}
+    \label{fig:enter-label}
+\end{figure}
+Note that we have filtered out the noise to get even better results. \\ \\
+The next set of features that we will be clustering is the \textbf{salaries} set. \\ \\ 
+We first start by scaling our normalized values before applying k-means on them with 5 clusters (0 inclusive): 
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{33.png}
+    \caption{\textbf{salaries} code}
+    \label{fig:enter-label}
+\end{figure}
+We can aslo get more descriptive details using this function: 
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{3e3.png}
+    \caption{Descriptive output}
+    \label{fig:enter-label}
+\end{figure}
+It yields the following results: 
+\begin{table}[H]
+    \centering
+    \caption{Cluster 0 Statistics}
+    \begin{tabular}{lrrr}
+        \hline
+        & \textbf{max\_salary} & \textbf{med\_salary} & \textbf{min\_salary} \\
+        \hline
+        \textbf{Count} & 4254 & 4254 & 4254 \\
+        \textbf{Mean} & 93365.99 & 101.35 & 66096.55 \\
+        \textbf{Std} & 16722.09 & 1090.31 & 11103.72 \\
+        \textbf{Min} & 40000 & 12 & 20000 \\
+        \textbf{25\%} & 90000 & 45 & 64220 \\
+        \textbf{50\%} & 90000 & 45 & 64220 \\
+        \textbf{75\%} & 90000 & 45 & 64220 \\
+        \textbf{Max} & 250000 & 40000 & 125000 \\
+        \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \caption{Cluster 1 Statistics}
+    \begin{tabular}{lrrr}
+        \hline
+        & \textbf{max\_salary} & \textbf{med\_salary} & \textbf{min\_salary} \\
+        \hline
+        \textbf{Count} & 319 & 319 & 319 \\
+        \textbf{Mean} & 243006.49 & 45 & 151984.83 \\
+        \textbf{Std} & 82270.93 & 0 & 44871.87 \\
+        \textbf{Min} & 140000 & 45 & 85000 \\
+        \textbf{25\%} & 175000 & 45 & 125000 \\
+        \textbf{50\%} & 217592 & 45 & 135000 \\
+        \textbf{75\%} & 332500 & 45 & 165000 \\
+        \textbf{Max} & 500000 & 45 & 345000 \\
+        \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \caption{Cluster 2 Statistics}
+    \begin{tabular}{lrrr}
+        \hline
+        & \textbf{max\_salary} & \textbf{med\_salary} & \textbf{min\_salary} \\
+        \hline
+        \textbf{Count} & 59 & 59 & 59 \\
+        \textbf{Mean} & 90000 & 83021.69 & 64220 \\
+        \textbf{Std} & 0 & 28753.74 & 0 \\
+        \textbf{Min} & 90000 & 47000 & 64220 \\
+        \textbf{25\%} & 90000 & 64978.5 & 64220 \\
+        \textbf{50\%} & 90000 & 72000 & 64220 \\
+        \textbf{75\%} & 90000 & 94000 & 64220 \\
+        \textbf{Max} & 90000 & 155500 & 64220 \\
+        \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \caption{Cluster 3 Statistics}
+    \begin{tabular}{lrrr}
+        \hline
+        & \textbf{max\_salary} & \textbf{med\_salary} & \textbf{min\_salary} \\
+        \hline
+        \textbf{Count} & 588 & 588 & 588 \\
+        \textbf{Mean} & 1352.25 & 45 & 946.41 \\
+        \textbf{Std} & 6227.82 & 0 & 4419.14 \\
+        \textbf{Min} & 12 & 45 & 10 \\
+        \textbf{25\%} & 23 & 45 & 18.12 \\
+        \textbf{50\%} & 30 & 45 & 24 \\
+        \textbf{75\%} & 51.16 & 45 & 43.25 \\
+        \textbf{Max} & 50000 & 45 & 36000 \\
+        \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \caption{Cluster 4 Statistics}
+    \begin{tabular}{lrrr}
+        \hline
+        & \textbf{max\_salary} & \textbf{med\_salary} & \textbf{min\_salary} \\
+        \hline
+        \textbf{Count} & 9 & 9 & 9 \\
+        \textbf{Mean} & 90000 & 256666.67 & 64220 \\
+        \textbf{Std} & 0 & 83404.14 & 0 \\
+        \textbf{Min} & 90000 & 175000 & 64220 \\
+        \textbf{25\%} & 90000 & 200000 & 64220 \\
+        \textbf{50\%} & 90000 & 250000 & 64220 \\
+        \textbf{75\%} & 90000 & 300000 & 64220 \\
+        \textbf{Max} & 90000 & 440000 & 64220 \\
+        \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \caption{Cluster 4 Statistics}
+    \begin{tabular}{lrrr}
+        \hline
+        & \textbf{max\_salary} & \textbf{med\_salary} & \textbf{min\_salary} \\
+        \hline
+        \textbf{Count} & 9 & 9 & 9 \\
+        \textbf{Mean} & 90000 & 256666.67 & 64220 \\
+        \textbf{Std} & 0 & 83404.14 & 0 \\
+        \textbf{Min} & 90000 & 175000 & 64220 \\
+        \textbf{25\%} & 90000 & 200000 & 64220 \\
+        \textbf{50\%} & 90000 & 250000 & 64220 \\
+        \textbf{75\%} & 90000 & 300000 & 64220 \\
+        \textbf{Max} & 90000 & 440000 & 64220 \\
+        \hline
+    \end{tabular}
+\end{table}
+And so, plotting our values, we get: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ed3.png}
+    \caption{Salaries plot}
+    \label{fig:enter-label}
+\end{figure}
+The pot indicates that most values fall around the same range, with a variance of 40\%. Further analysis can help us provide more evidence to this conclusion: 
+\\ \\ 
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{e3e.png}
+    \caption{3D scatter plot showing the distribution of \textbf{salaries}}
+    \label{fig:enter-label}
+\end{figure}
+As for the metrics, they are great: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{dededededed.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+We were worried that they might show sign of over-fitting, but they portray optimum result.  \\ \\
+The last features we will cluster are the set of categorical features, and in order to explain what is happening, we shall break down the big code block into two parts: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ded.png}
+    \caption{Part 1 categorical}
+    \label{fig:enter-label}
+\end{figure}
+In this part, we handle some missing values we did notice before, we then covert them back to their encoded values. We then use the elbow method to calculate the SSE (sum squared error) to find the optimal number of clusters: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{er4.png}
+    \caption{Elbow method plot}
+    \label{fig:enter-label}
+\end{figure}
+Here is the outlook: 
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{k} & \textbf{SSE} \\
+        \hline
+        1 & 18590.089181342264 \\
+        2 & 11046.857238019915 \\
+        3 & 6798.9790743660005 \\
+        4 & 4013.133529027789 \\
+        5 & 3304.982655458687 \\
+        6 & 2674.844224749804 \\
+        7 & 2074.1868654501486 \\
+        8 & 1593.0121530608176 \\
+        9 & 1313.5562744267118 \\
+        10 & 1094.1803395522443 \\
+        \hline
+    \end{tabular}
+    \caption{Sum of Squared Errors (SSE) for different values of \( k \) in k-means clustering.}
+    \label{tab:sse_values}
+\end{table}
+In the second part of the code, we compute the k-means algorithm and plot the results: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{4r4.png}
+    \caption{Code for the plot}
+    \label{fig:enter-label}
+\end{figure}
+And here is the visualization: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.51\linewidth]{rf.png}
+    \caption{clusters visualized}
+    \label{fig:enter-label}
+\end{figure}
+We notice a very clear clear separation of the clusters that captures a good variance. The metrics speak for themselves: 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{frfg.png}
+    \caption{metrics for the categorical features}
+    \label{fig:enter-label}
+\end{figure}
+Now that all models show great to moderate accuracy, it is time to deploy some of them, and wrap them in a nice interface by which the user can interact with. 
+\paragraph{4.3.3.3 Model deployment} 
+FILL LATER
+\subsubsection{ 4.4 Implementation Details}
+In the following subsection, we will explain the stack and the libraries which we have used. As always, it will be divided into two parts: \\ \\ 
+\textbf{Stack for the the model(s) development:} \\ \\ 
+For our model, python was consistently used all throughout. The following libraries and packages are technologies which have helped us greatly: 
+\begin{enumerate}
+    \item the\textbf{sklearn} library was used to import various algorithms to cluster our data and to perform techniques such as dimensionality reduction. 
+    \item The \textbf{pandas} library was used to manipulate the excel file during the pre-process phase. 
+    \item The nltk library was used to perform things such as tokenization and lemmatization. It was also used to perform the sentiment analysis, as well as computing the metrics to test our models. 
+    \item The \textbf{matplot} and \textbf{seasborn} libraries respectively, were used to visualize our data. 
+    \item The joblib library was used to save our models to be later deployed. 
+    \item The \textbf{numpy} library was used to import additional formulas to compute things like the correlation matrix. 
+\end{enumerate}
+\textbf{Stack for the deployment:} \\ \\ 
+Since this part represents a significantly smaller proportion of the overall project, we did not opt for fancy frameworks:
+\begin{enumerate}
+    \item We used \textbf{django}, a Python framework which allows us to use it as a server-side language, deploy our models, preprocess the inputs given by the user, and handle requests made on our models. 
+    \item {HTML5} was used to construct the basic corpus of the website. 
+    \item Basic \textbf{CSS} was used to style it.
+    \item \textbf{JavaScript} was used to handle the basic client side logic (mainly performing generic requests using ajax)
+\end{enumerate}
+\subsubsection{Market Viability}
+Given the rapid digitization of the basic tasks of everyday life, we forecast a rising demand in platform usage such as LinkedIn, and as earlier mentioned, this correlates to a higher subsequent demand of proper tools to find job trends online. Unfortunately, time does not permit us to conduct a proper feasibility study, but the practicality of our project infused with its ease of use could find some appeal, so long as trends do not change abruptly. 
+\subsubsection{Future Work}
+There exists a lot of room for improvement. First, if time permits, one can scrap data that spans over years to create trends with an elastic temporal scope. Within the models themselves, accuracy can be improved and more cluster combinations can be used. Finally, more descriptive models can be used like dendograms in order to get more insight into the data. 
+\subsubsection{Results and Impact}
+Our methods allow for a clearance in ambiguity when searching for job trends. It picks up relevant words and skills, as well as many other parameters, to conduct a comprehensive overview of what is relevant in the tedious and impressive set of options available today. Most importantly, it saves a lot of time for the user. 
+\subsubsection{Team work}
+Initially, this project started as a purely individual initiative by Ali Abbani. Ghadi later joined around march, but we both started work around early march, since we were extremely busy with exams and job interviews. \\ \\ 
+Both Ghadi and Ali worked on the preprocessing. Ghadi built, trained and tested the models while Ali worked on the interface's frontend. Ghadi worked on the sample backend. 
+Here is the similar Gantt chart that was made earlier. Obviously, we were not fully faithful to it, but it does give a close approximation: \\ \\ 
+
+\begin{ganttchart}[
+    hgrid,
+    vgrid,
+    x unit=1.5cm, 
+    y unit title=1.5cm,
+    y unit chart=1.2cm,
+    title height=1,
+    title label font=\bfseries\footnotesize,
+    bar/.style={fill=blue!50},
+    bar height=0.8,
+    group right shift=0,
+    group top shift=0.7,
+    group height=0.3,
+    group peaks width={0.2},
+    group peaks height={0.2},
+    inline
+  ]{1}{10} 
+  
+  \gantttitle{Feb 26- May 12}{10} \\
+  \gantttitlelist{1,...,10}{1} \\
+
+  \ganttbar{Data Gathering}{1}{2} \\
+  \ganttbar{Data Preprocessing}{3}{4} \\
+  \ganttbar{Data Cleaning}{5}{6} \\
+  \ganttbar{Model Development}{7}{8} \\
+  \ganttbar{Model Training}{9}{10} \\
+  \ganttbar{Website}{10}{10} \\
+  
+  \ganttgroup{Phase 1}{1}{6} \\
+  \ganttgroup{Phase 2}{7}{10}
+  
+\end{ganttchart}
+\subsubsection{Conclusion}
+Recall that we have set three different metrics for our project: Accuracy, Recall, and Ethical Compliance. Since we are using unsupervised learning, the first two collapse into one. We worked hard to optimize our results as greatly as our limited undergraduate knowledge could have allowed us to. Since the data that was scrapped was done (indirectly) through the linkedIn API, we did not violate any law regarding data integrity and confidentiality. Finally, since this was our first serious machine learning project, we honed our skills in pre-processeing different type of data, and explored many algorithsm which were previously unknown to us. more importantly, we learned how to deploy out models to use them in an actual practical way. 
 
 \end{document}
