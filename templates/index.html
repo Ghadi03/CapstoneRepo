@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Cluster Prediction</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styling.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body{
+            background: url("{% static 'white.png' %}") no-repeat center center fixed;
+            background-size: cover;
+        }
+
+    </style>
+    <style>
+        ::selection {
+    background-color: orange;
+    color: white; /* Optional: Change text color to white for better contrast */
+}
+
+/* For Firefox */
+::-moz-selection {
+    background-color: orange;
+    color: white; /* Optional: Change text color to white for better contrast */
+}
+
+    </style>
+ <style>
+    table {
+        width: 50%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-family: 'Poppins', sans-serif;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: orange;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    tr:hover {
+        background-color: #ddd;
+    }
+    caption {
+        font-size: 1.5em;
+        margin: 10px;
+        background: linear-gradient(to right, rgb(255, 128, 1), rgb(113, 74, 1)); 
+        -webkit-background-clip: text;
+         color:transparent; 
+         font-weight: bold;
+    }
+</style>
+</head>
+<body>
+    <div id="hero-section">
+        <h1 id="Main-title">Struggling to find a job?</h1>
+        <h2 id="Sub-title">Search <span style="background: linear-gradient(to right, rgb(255, 128, 1), rgb(113, 74, 1)); -webkit-background-clip: text; color:transparent; font-weight: bold;">smartly</span></h2>
+    </div>
+    <div class="content">
+        <p style="margin-left: 15px;">Leveraging modern and powerful machine learning techniques, we have created tools that are specifically tailored for you.</p>
+        <div class="image-carousel">
+            <img src="{% static 'auto encoder + db scan.png' %}" alt="Image 1" class="image-carousel">
+            <img src="{% static 'db scan + svd.png' %}" alt="Image 2" class="image-carousel">
+            <img src="{% static 'db scan clustering .png' %}" alt="Image 3" class="image-carousel">
+            <img src="{% static 'download (1).png' %}" alt="Image 4" class="image-carousel">
+            <img src="{% static 'download (2).png' %}" alt="Image 5"class="image-carousel">
+            <img src="{% static 'download (3).png' %}" alt="Image 6" class="image-carousel">
+            <img src="{% static 'download (4).png' %}" alt="Image 7" class="image-carousel">
+            <img src="{% static 'download (6).png' %}" alt="Image 8" class="image-carousel">
+            <img src="{% static 'download (15).png' %}" alt="Image 9" class="image-carousel">
+            <img src="{% static 'download.png' %}" alt="Image 10" class="image-carousel">
+            <img src="{% static 'elbow method for k means last one .png' %}" alt="Image 11" class="image-carousel">
+            <img src="{% static 'gmm clustering .png' %}" alt="Image 12" class="image-carousel">
+            <img src="{% static 'graph 2.png' %}" alt="Image 13" class="image-carousel">
+            <img src="{% static 'k means 1.png' %}" alt="Image 14" class="image-carousel">
+            <img src="{% static 'k means 2.png' %}" alt="Image 15" class="image-carousel">
+            <img src="{% static 'k means on categorical.png' %}" alt="Image 16" class="image-carousel">
+            <img src="{% static 'k means salaries.png' %}" alt="Image 17" class="image-carousel">
+            <img src="{% static 'sentimetn analysis.png' %}" alt="Image 18" class="image-carousel">
+            <img src="{% static 'spectral clustering.png' %}" alt="Image 19" class="image-carousel">
+        </div>
+    </div>
+    <div class="metrics-container"  style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin: 10px 0; width: 100%;"> 
+        <h1>Our models have been tuned for great accuracy:</h1>
+        <div style="display: flex; flex-direction: row; gap: 90px; margin-top: 10px;">
+            <div style="width: auto; height: auto; background-color: chocolate; border-radius: 50px; padding: 10px;"> 
+                <h1 style="font-size: 20px; font-weight: 300;">Average silhouette score:</h1>
+            </div>
+    
+            <div style="width: auto; height: auto; background-color: chocolate; border-radius: 50px; padding: 10px;"> 
+                <h1 style="font-size: 20px; font-weight: 300;">Average Calinski-Harabasz Index:</h1>
+            </div>
+    
+            <div style="width: auto; height: auto; background-color: chocolate; border-radius: 50px; padding: 10px;"> 
+                <h1 style="font-size: 20px; font-weight: 300;">Average Davies-Bouldin Index:</h1>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: row; gap: 360px; margin-top: 10px;"> 
+                <h1 style="font-size: 19px; font-weight: 150;">0.435</h1>
+                <h1 style="font-size: 18px; font-weight: 150;">2786.25</h1>
+                <h1 style="font-size: 18px; font-weight: 150;">0.788</h1>
+        </div>
+    </div>
+    <div style="margin-top: 100px;"> <p style="font-size: large; font-weight: 100;"> We have scanned all of linkedIn for you, and have found the most important key-words that employers use:</p></div>
+    <div style="display: flex; flex-direction: row; gap: 75px; margin-left: 15px; " >
+        <table>
+            <caption>Cluster 0 Top Words</caption>
+            <tr>
+                <th>Features</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td>experience</td>
+                <td>0.059248</td>
+            </tr>
+            <tr>
+                <td>work</td>
+                <td>0.053826</td>
+            </tr>
+            <tr>
+                <td>team</td>
+                <td>0.049427</td>
+            </tr>
+            <tr>
+                <td>customer</td>
+                <td>0.048882</td>
+            </tr>
+            <tr>
+                <td>service</td>
+                <td>0.041727</td>
+            </tr>
+            <tr>
+                <td>project</td>
+                <td>0.039039</td>
+            </tr>
+            <tr>
+                <td>company</td>
+                <td>0.037434</td>
+            </tr>
+            <tr>
+                <td>skill</td>
+                <td>0.036998</td>
+            </tr>
+            <tr>
+                <td>business</td>
+                <td>0.036727</td>
+            </tr>
+            <tr>
+                <td>patient</td>
+                <td>0.035950</td>
+            </tr>
+        </table>
+    
+        <table>
+            <caption>Cluster 1 Top Words</caption>
+            <tr>
+                <th>Features</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td>credit</td>
+                <td>0.351303</td>
+            </tr>
+            <tr>
+                <td>sale</td>
+                <td>0.344656</td>
+            </tr>
+            <tr>
+                <td>business</td>
+                <td>0.321557</td>
+            </tr>
+            <tr>
+                <td>personal</td>
+                <td>0.276454</td>
+            </tr>
+            <tr>
+                <td>consulting</td>
+                <td>0.182812</td>
+            </tr>
+            <tr>
+                <td>managing</td>
+                <td>0.176719</td>
+            </tr>
+            <tr>
+                <td>promotion</td>
+                <td>0.176348</td>
+            </tr>
+            <tr>
+                <td>owner</td>
+                <td>0.175651</td>
+            </tr>
+            <tr>
+                <td>small</td>
+                <td>0.167304</td>
+            </tr>
+            <tr>
+                <td>monthly</td>
+                <td>0.150930</td>
+            </tr>
+        </table>
+    
+        <table>
+            <caption>Cluster 2 Top Words</caption>
+            <tr>
+                <th>Features</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td>cogent</td>
+                <td>0.619990</td>
+            </tr>
+            <tr>
+                <td>network</td>
+                <td>0.225113</td>
+            </tr>
+            <tr>
+                <td>vaccination</td>
+                <td>0.162162</td>
+            </tr>
+            <tr>
+                <td>sale</td>
+                <td>0.126762</td>
+            </tr>
+            <tr>
+                <td>policy</td>
+                <td>0.115779</td>
+            </tr>
+            <tr>
+                <td>covid</td>
+                <td>0.106645</td>
+            </tr>
+            <tr>
+                <td>selling</td>
+                <td>0.089213</td>
+            </tr>
+            <tr>
+                <td>internet</td>
+                <td>0.089136</td>
+            </tr>
+            <tr>
+                <td>business</td>
+                <td>0.086787</td>
+            </tr>
+            <tr>
+                <td>service</td>
+                <td>0.086493</td>
+            </tr>
+        </table>
+    
+        <table>
+            <caption>Cluster 3 Top Words</caption>
+            <tr>
+                <th>Features</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td>clinician</td>
+                <td>0.461137</td>
+            </tr>
+            <tr>
+                <td>travel</td>
+                <td>0.376138</td>
+            </tr>
+            <tr>
+                <td>week</td>
+                <td>0.224461</td>
+            </tr>
+            <tr>
+                <td>care</td>
+                <td>0.208963</td>
+            </tr>
+            <tr>
+                <td>nurse</td>
+                <td>0.199493</td>
+            </tr>
+            <tr>
+                <td>experienced</td>
+                <td>0.193127</td>
+            </tr>
+            <tr>
+                <td>agency</td>
+                <td>0.176311</td>
+            </tr>
+            <tr>
+                <td>contract</td>
+                <td>0.175550</td>
+            </tr>
+            <tr>
+                <td>patient</td>
+                <td>0.168350</td>
+            </tr>
+            <tr>
+                <td>state</td>
+                <td>0.161677</td>
+            </tr>
+        </table>
+    
+        <table>
+            <caption>Cluster 4 Top Words</caption>
+            <tr>
+                <th>Features</th>
+                <th>Score</th>
+            </tr>
+            <tr>
+                <td>store</td>
+                <td>0.326802</td>
+            </tr>
+            <tr>
+                <td>representative</td>
+                <td>0.251879</td>
+            </tr>
+            <tr>
+                <td>customer</td>
+                <td>0.246724</td>
+            </tr>
+            <tr>
+                <td>availability</td>
+                <td>0.182527</td>
+            </tr>
+            <tr>
+                <td>customer service</td>
+                <td>0.175295</td>
+            </tr>
+            <tr>
+                <td>carry</td>
+                <td>0.159785</td>
+            </tr>
+            <tr>
+                <td>daily</td>
+                <td>0.155673</td>
+            </tr>
+            <tr>
+                <td>pound</td>
+                <td>0.148033</td>
+            </tr>
+            <tr>
+                <td>friendly</td>
+                <td>0.146594</td>
+            </tr>
+            <tr>
+                <td>service</td>
+                <td>0.130571</td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-top: 40px; overflow: hidden; height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center;"> 
+        <h1 style="font-weight: 100; font-size: 45px;">Not satisfied with our hints? Try our models hands on</h1>
+        <h1 style="font-weight: 100; font-size: large; text-align: center; font-size: 45px;">↓</h1>
+    </div>
+    
+    <h1 class="try">Find Salary Cluster</h1>
+    <div style="display: flex; flex-direction: column;   align-items: top; justify-content: center ;">
+        <form id="salaryForm" action="{% url 'predict-cluster' %}" method="post">
+            {% csrf_token %}
+            <label for="min_salary" style="font-family: 'Poppins', sans-serif; font-size: 16px;">Minimum Salary:</label>
+            <input type="number" id="min_salary" name="min_salary" required style="width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 2px solid orange; border-radius: 4px;"><br><br>
+        
+            <label for="medium_salary" style="font-family: 'Poppins', sans-serif; font-size: 16px;">Median Salary:</label>
+            <input type="number" id="medium_salary" name="medium_salary" required style="width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 2px solid orange; border-radius: 4px;"><br><br>
+        
+            <label for="max_salary" style="font-family: 'Poppins', sans-serif; font-size: 16px;">Maximum Salary:</label>
+            <input type="number" id="max_salary" name="max_salary" required style="width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border: 2px solid orange; border-radius: 4px;"><br><br>
+        
+            <button type="submit" style="font-family: 'Poppins', sans-serif; background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Predict Cluster</button>
+        </form>
+        
+   </div>
+    <div id="result" style="margin: 10px;"></div>   
+
+    <script>
+        $(document).ready(function() {
+            $('#salaryForm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    success: function(response) {
+                        if (response.cluster === 0) {
+                            $('#result').html('It seems that the range you want is feasible.');
+                        } else {
+                            $('#result').html('The salary range seems unrealistic, try changing to a lower or higher range.');
+                        }
+                        $('#salaryForm')[0].reset(); // Clear the form values
+                    },
+                    error: function() {
+                        $('#result').html('Error processing your request.');
+                    }
+                });
+            });
+    
+            $('#salaryForm').on('submit', function(e) {
+                var minSalary = parseInt($('#min_salary').val());
+                var mediumSalary = parseInt($('#medium_salary').val());
+                var maxSalary = parseInt($('#max_salary').val());
+    
+                if (minSalary < 1000 || minSalary > 1000000) {
+                    alert('Minimum Salary must be between 1,000 and 1,000,000.');
+                    e.preventDefault();
+                    return false;
+                }
+    
+                if (mediumSalary < 2000 || mediumSalary > 2000000) {
+                    alert('Median Salary must be between 2,000 and 2,000,000.');
+                    e.preventDefault();
+                    return false;
+                }
+    
+                if (maxSalary < 3000 || maxSalary > 3000000) {
+                    alert('Maximum Salary must be between 3,000 and 3,000,000.');
+                    e.preventDefault();
+                    return false;
+                }
+    
+                if (minSalary >= mediumSalary || mediumSalary >= maxSalary) {
+                    alert('Please ensure that Minimum Salary < Median Salary < Maximum Salary.');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+    
+    <h1 style="font-weight: 100; font-size: 25px; height: 10vh; margin-top: 90px;">You can also try to input some text using another model</h1>
+    
+    <h1>Try using a job Description</h1>
+    <form id="jobDescForm" action="{% url 'analyze-description' %}" method="post">
+        {% csrf_token %}
+        <label for="description"></label>
+        <textarea id="description" name="description" required rows="4" cols="50" style="font-family: 'Poppins', sans-serif; font-size: 16px;"></textarea><br><br>
+        
+        <button type="submit" style="font-family: 'Poppins', sans-serif; background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Analyze Text</button>
+    </form>
+    <div id="result" style="font-weight: 100; font-size: 20px;" ></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#jobDescForm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    success: function(response) {
+                        var message;
+                        if (response.cluster === -1) {
+                            message = "Hmmm, it seems like the skills you are searching aren't mentioned a lot on LinkedIn.";
+                        } else {
+                            message = "There seems to be a lot of demand for a job like this, check the tables for more details!";
+                        }
+                        $('#result').html('<p>' + message + '</p>');
+                        $('#jobDescForm')[0].reset(); // Clear the form values
+                    },
+                    error: function() {
+                        $('#result').html('Error processing your request');
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script>
+        // Smooth horizontal scrolling effect
+let scrollAmount = 0;
+const carousel = document.querySelector('.image-carousel');
+const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+function scrollStep() {
+    scrollAmount += carousel.clientWidth / 2; 
+    if (scrollAmount >= maxScroll) {
+        scrollAmount = 0;
+    }
+    carousel.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth'
+    });
+}
+
+setInterval(scrollStep, 2000); 
+
+    </script>
+</body>
+</html>
