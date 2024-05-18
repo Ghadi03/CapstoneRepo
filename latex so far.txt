@@ -49,13 +49,13 @@ Based on a 2021 study by The Muse, 70 percent of university students face career
 
 \section{Problem Challenges}
 \subsection{Problems with data collection}
-Our project comports a wide set of hurdles and challenges that we have had to overcome. Starting from the step which consists of scraping the data, we have encountered problems with the LinkedIn API (application programming interface). We were unable to leverage it in order to collect the data we need. Thankfully however, we found a dataset in kaggle which uses the exact same API to store all sorts of jobs that were listed in the year 2023. We also ran into some problems in the semantics of the project. At first, we wanted to create a comprehensive overview of jobs trends across time, but due to insufficient data, we had to shift our focus on one year. And so, our project now consists of finding \textbf{the most recent job trends}, rather than illustrate an elastic trend that spans across an interval. 
+The project comports a wide set of challenges that we had to overcome. Starting from the first step of scraping the data, we encountered problems with the LinkedIn API (application programming interface). We were unable to leverage it in order to collect the data we need. Thankfully, we found a dataset in kaggle which uses the exact same API to store several jobs that were listed in the year 2023. We also encountered a few problems in the semantics of the project. Initially, our vision was  to create a comprehensive overview of jobs trends across time, but due to insufficient data, we had to shift our focus on one year. And so, our project now consists of finding \textbf{the most recent job trends}, rather than illustrate an elastic trend that spans across an interval. 
 \subsection{Problems with the pre-processing of the data}
-As we will see later in more details, our data was very much not monolithic in nature, and was compromised of a diverse set of textual, categorical, and numerical data. In addition to the various techniques we have had to use to handle such variety, the great noise in the data made us also put even more effort. 
+Before progressing further into detail, it is worth noting that our data was not monolithic in nature and was compromised of a diverse set of textual, categorical, and numerical data. In addition to the various techniques we have had to use to handle such variety, the great noise in the data made us also put even more effort. 
 \subsection{Problems with the models}
-Initially, not all of our models showed good accuracy, which made us backtrack quite often in order to perform parameter tuning, and combine it with various prep-processing techniques in order to reach the optimum solution. 
+Initially, not all of our models showed good accuracy, which made us backtrack quite often to perform parameter tuning, and combine it with various prep-processing techniques to reach the optimum solution. 
 \subsection{Problems with the overall architecture}
-After exporting our models, we had to teach ourselves to incorporate it with a simple web interface. 
+After exporting our models, we taught ourselves to incorporate it with a simple web interface. 
 \section{Report body}
 \subsection{Problem statement}
 In this project, the primary objective is to develop a comprehensive understanding of job trends and skills within the LinkedIn platform. The central questions guiding this investigation include:
@@ -112,10 +112,10 @@ The first part can subsequently be broken down into additional sub parts. Indeed
 \end{itemize}
 \item Data processing, which consists of three sub steps: \\
 \textbf{1) Feature extraction}\textbf{, 2) data cleaning}, \textbf{3) and data visualization.} We shall go into much more depth as we proceed with the next stages of the explanation. 
-\item Data modelling: In this step, we first apply the algorithms we want to test, then we measure their performance accordingly. It should be obvious that we did not get the results we wanted from the first try, and thus had to perform \textbf{parameter tuning.}
+\item Data modelling: In this step, we first apply the algorithms we want to test, then we measure their performance accordingly. It should be obvious that we did not get optimal results from our first attempt, and thus had to perform \textbf{parameter tuning.}
 \item Model testing: In this step, we extract 20 \% of the dataset and make it go through the same processing steps, then test it to see if the model can accurately proceed with correct outputs. 
 \end{enumerate}
-The next part of the project consists of building a small web application which helps the user interact in a simple manner with our model through the medium of a user-friendly interface. The process includes: 
+The next part of the project consists of building a small web application which helps the user interact with our model through the medium of a user-friendly interface. The process includes: 
 \begin{enumerate}
     \item Exporting the model(s) we have developed from google colab by loading them after training them.  
     \item Install the libraries needed to use the models
@@ -162,7 +162,7 @@ We have partitioned the features into four sets:
     \item The set of salaries: {max,med, and min salary}
     \item The set of features that remain. 
 \end{enumerate}
-While there exists numerous other ways to partition our data, this method will allows us to put more emphasis on the columns which contain a lot of semantics we can extract. \\ \\ 
+While there are numerous other ways to partition our data, this method will allows us to put more emphasis on the columns containing many semantics we can extract. \\ \\ 
 Following this step, we feed the data of each set to its optimal algorithm. Various methods, both for the pre-processing and the models themselves were tried, and more details will be explained later on. \\ \\
 Following a process which involved a lot of trial and error, we have found out that the optimal the results for each set is the following: 
 \begin{enumerate}
@@ -225,7 +225,7 @@ Where mu is the is the mean of the data and sigma the standard deviation of the 
     \caption{Code snippet of the operation}
     \label{fig:enter-label}
 \end{figure}
-We can see here that we are filling the empty cells with the mean of each values, we then proceed by standardizing them using the formula shown earlier. \\ \\
+We see here the filling the empty cells with the mean of each values, and we then proceed by standardizing them using the formula shown earlier. \\ \\
 An alternative block was used prior to implemented the one previously shown which involved grouping the values based n certain indices before implementing the same steps. However it did not show the results we were anticipating: 
 \begin{figure}[H]
     \centering
@@ -233,7 +233,7 @@ An alternative block was used prior to implemented the one previously shown whic
     \caption{Alternative code block}
     \label{fig:enter-label}
 \end{figure}
-Either way, here is the final output after applying the pre-processing steps: 
+Here is the final output after applying the pre-processing steps: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.45\linewidth]{normalized.png}
@@ -247,21 +247,21 @@ The next step is to 0-1 hot label encode the \textbf{work-type} feature:
     \caption[Applying the encoded]
     \label{fig:enter-label}
 \end{figure}
-As we can see, we are first mapping each type of work to a digit, we are then replace inwardly each values with the correct one to one mapping. The following is output of our algorithm: 
+As we can see, we first map each type of work to a digit, we then replace inwardly each values with the correct one to one mapping. The following is output of our algorithm: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.25\linewidth]{worktypeencoded.png}
     \caption{After encoding work type}
     \label{fig:enter-label}
 \end{figure}
-The next step is to encode the \textbf{currency} feature. Since our data is concentrated in the united-states, we decided to split our data this way: 
+The next step is to encode the \textbf{currency} feature. Since our data is concentrated within the united-states, we decided to split our data this way: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{7.png}
     \caption{Encoded currency}
     \label{fig:enter-label}
 \end{figure}
-As the reader might already have noticed, we have replaced the 'USD' currency with 1, and the rest with 0, here is the output: 
+Noticeably, we replaced the 'USD' currency with 1, and the rest with 0, here is the output: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.2\linewidth]{currency_encoded.png}
@@ -269,7 +269,7 @@ As the reader might already have noticed, we have replaced the 'USD' currency wi
     \label{fig:enter-label}
 \end{figure}
 We can see the change being reflected accordingly. \\ \\
-Next, we encode the feature \textbf{compensation\_type}. Since people can either receive a simple base salary or something other than a base salary, regardless of what it is, we encode this in the following fashion: 
+Next, we encode the feature \textbf{compensation\_type}. Since people can either receive a simple base salary or a base salary with another bonus, regardless of what it is, we encode this in the following fashion: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{8.png}
@@ -283,7 +283,7 @@ We simply replace the base salary with 0, and the rest with 1. Here is the resul
     \caption{currency\_encoded}
     \label{fig:enter-label}
 \end{figure}
-Of course, it should be obvious that once we encode a categorical column, we drop the one with the original filling. Here as example: 
+Of course, once we encode a categorical column, we drop the one with the original filling. Here as example: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{9.png}
@@ -312,8 +312,8 @@ The following process was our first encounter with a textual feature. Initially,
      \caption{Vectorizing skill description }
      \label{fig:enter-label}
  \end{figure}
-We can see here how we apply the vectorizer. We also add a binary mapping to check whether there the cell is null or nut. We ended up not using this feature, as too many cells were empty, and neither amputation nor replacement could have improved our results. Still, explaining the process is important, as we have other textual data where we will use this technique. \\ \\
-Coming to the \textbf{title} feature, we tried to apply first two distinct methods to pre-process it. However, with neither of them yielding a proper result, we ended up using a mix of both. 
+We can see here how we apply the vectorizer. We also added a binary mapping to check whether there the cell is null or nut. We eventually decided against using this feature, as too many cells were empty, and neither amputation nor replacement could have improved our results. Although scrapped, explaining the process is important, as we have other textual data where we will use this technique. \\ \\
+Reaching the \textbf{title} feature, we tried to apply first two distinct methods to pre-process it. However, with neither of them yielding a proper result, we eventually used a mix of both. 
 \\ \\
 Nevertheless, here are the initial code snippets: 
 \begin{figure}[H]
@@ -344,7 +344,7 @@ The second block of code is a failed alternative test. Instead of using TF-IDF v
     \caption{Word2Vec implementation}
     \label{fig:enter-label}
 \end{figure}
-We can see here that some logic is being applied. We apply group the words by mean vectors and return 0 if the words are not valid, then we apply the vectors to each processed title. Again however, we will see later what we have used in the model explanation step. \\ \\ 
+We notice here that some logic is being applied. We apply group the words by mean vectors and return 0 if the words are not valid, then we apply the vectors to each processed title. However, we will expand later what we have used in the model explanation step. \\ \\ 
 We then work on the \textbf{experience\_level} feature. As the reader ca already tell, we will use the same mapping technique used previously: 
 \begin{figure}[H]
     \centering
